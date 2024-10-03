@@ -2,7 +2,7 @@
   "name": "csc_307",
   "version": "1.0.0",
   "main": "index.js",
-"scripts": {
+  "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
@@ -22,6 +22,7 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
+    "nodemon": "^3.1.7",
     "vite": "^5.4.1"
   },
   "author": "",
