@@ -34,6 +34,17 @@ const users = {
     ]
 };
 
+function randomID(name){
+    let res = "";
+    let name_len = name.length;
+    if (name != null){
+        for (let i=0; i < name_len;i++){
+            res = res.concat((name.charCodeAt(name_len - i - 1)* 757).toString());
+        }
+    }
+    return res;
+}
+
 const findUserByName = (name) => {
     return users["users_list"].filter(
         (user) => user["name"] === name
@@ -50,6 +61,7 @@ const findUserById = (id) =>
     users["users_list"].find((user) => user["id"] === id);
 
 const addUser = (user) => {
+    user["id"] = randomID(user["name"]);
     users["users_list"].push(user);
     return user;
 };
@@ -103,9 +115,9 @@ app.get("/users", (req, res) => {
 });
 
 app.post("/users", (req, res) => {
-    const userToAdd = req.body;
-    addUser(userToAdd);
-    res.send();
+    let userToAdd = req.body;
+    let newUser = addUser(userToAdd);
+    res.status(201).send(newUser);
 });
 
 app.delete("/users", (req, res) => {
