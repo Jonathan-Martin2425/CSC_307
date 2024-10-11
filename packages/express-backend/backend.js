@@ -124,8 +124,10 @@ app.delete("/users", (req, res) => {
     const userId = req.query.id;
     if (userId != undefined) {
         deleteUser(userId);
+        res.status(204).send();
+    }else{
+        res.status(404).send();
     }
-    res.send();
 });
 
 app.listen(port, () => {

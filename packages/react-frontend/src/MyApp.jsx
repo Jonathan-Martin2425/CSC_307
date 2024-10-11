@@ -2,30 +2,9 @@ import React, { useState, useEffect } from "react";
 import Table from "./Table";
 import Form from "./Form";
 
-
-const characters = [
-  {
-    name: "Charlie",
-    job: "Janitor"
-  },
-  {
-    name: "Mac",
-    job: "Bouncer"
-  },
-  {
-    name: "Dee",
-    job: "Aspring actress"
-  },
-  {
-    name: "Dennis",
-    job: "Bartender"
-  }
-];
-
 function test(){
-    let cur = fetchUsers()
-	      .then((res) => res.json())
-          .then((res) => console.log(res))
+    fetchUsers()
+          .then((res) => console.log(res.json()))
 	      .catch((error) => { console.log(error); }).PromiseResult  ;
     return;
 }
@@ -55,12 +34,13 @@ function postUser(person) {
   }
 
   function updateList(person) { 
-    postUser(person)
-      .then( (response) => {return response.json()})
-      .then(() => setCharacters([...characters, person]))
+    let x = postUser(person)
+      .then((response) => {return response.json();})
+      .then((newUser) => setCharacters([...characters, newUser]))
       .catch((error) => {
         console.log(error);
       })
+    
 
     }
 
@@ -68,6 +48,12 @@ function postUser(person) {
     const updated = characters.filter((character, i) => {
       return i !== index;
     });
+
+    fetch("Http://localhost:8000/users?id=".concat(characters[index]["id"]), {
+      method: "DELETE",
+    }).catch((error) => {
+        console.log(error);
+      });
     setCharacters(updated);
   }
 
@@ -86,7 +72,6 @@ function postUser(person) {
       />
 
       <Form handleSubmit={updateList} />
-      <Form handleSubmit={test} />
     </div>
   );
 }
