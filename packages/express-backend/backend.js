@@ -1,90 +1,26 @@
 import express from "express";
-import cors from "cors"
+import cors from "cors";
+import user_services from "./user-services.js";
 
 const app = express();
 const port = 8000;
 
-const users = {
-    users_list: [
-        {
-            id: "xyz789",
-            name: "Charlie",
-            job: "Janitor"
-        },
-        {
-            id: "abc123",
-            name: "Mac",
-            job: "Bouncer"
-        },
-        {
-            id: "ppp222",
-            name: "Mac",
-            job: "Professor"
-        },
-        {
-            id: "yat999",
-            name: "Dee",
-            job: "Aspring actress"
-        },
-        {
-            id: "zap555",
-            name: "Dennis",
-            job: "Bartender"
-        }
-    ]
-};
-
-function randomID(name){
-    let res = "";
-    let name_len = name.length;
-    if (name != null){
-        for (let i=0; i < name_len;i++){
-            res = res.concat((name.charCodeAt(name_len - i - 1)* 757).toString());
-        }
-    }
-    return res;
-}
-
-const findUserByName = (name) => {
-    return users["users_list"].filter(
-        (user) => user["name"] === name
-    );
-};
-
-const findUserByNameAndJob = (name, job) => {
-    return users["users_list"].filter(
-        (user) => user["name"] === name && user["job"] === job
-    );
-};
-
-const findUserById = (id) =>
-    users["users_list"].find((user) => user["id"] === id);
-
-const addUser = (user) => {
-    user["id"] = randomID(user["name"]);
-    users["users_list"].push(user);
-    return user;
-};
-
-const deleteUser = (userID) => {
-    for (let i = 0; i < users["users_list"].length; i = i + 1) {
-        if (users["users_list"][i]["id"] === userID){
-            users["users_list"].splice(i, 1);   
-        }
-    }
-    return;
-};
-
 app.use(cors());
 app.use(express.json());
 
-app.get("/users/:id", (req, res) => {
-    const id = req.params["id"]; //or req.params.id
-    let result = findUserById(id);
+app.get("/users/:_id", (req, res) => {
+    const id = req.params["_id"]; //or req.params.id
+    console.log(id);
+
+    let result = user_services.findUserById(id);
     if (result === undefined) {
         res.status(404).send("Resource not found.");
     } else {
-        res.send(result);
+        result.then((r) => { res.send(r); })
+            .catch((error) => {
+                console.log(error);
+                res.status(500).send();
+            });
     }
 });
 
@@ -99,32 +35,33 @@ app.get("/users", (req, res) => {
 
     //gives the list of users that match name AND job
     //if there's no or incorrect querry, returns whole user list instead
-    if (name != undefined && job != undefined) {
-        let result = findUserByNameAndJob(name, job);
-        console.log(name + " " + job);
-        result = { users_list: result };
-        res.send(result);
-    }
-    else if (name != undefined) {
-        let result = findUserByName(name);
-        result = { users_list: result };
-        res.send(result);
-    } else {
-        res.send(users);
-    }
+    let user = user_services.getUsers(name, job)
+    user.then((u) => { res.send(u); })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send();
+        });
 });
 
 app.post("/users", (req, res) => {
     let userToAdd = req.body;
-    let newUser = addUser(userToAdd);
-    res.status(201).send(newUser);
+    user_services.addUser(userToAdd)
+        .then((newUser) => {res.status(201).send(newUser); })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send();
+        });
 });
 
 app.delete("/users", (req, res) => {
-    const userId = req.query.id;
+    const userId = req.query._id;
+    console.log(userId)
     if (userId != undefined) {
-        deleteUser(userId);
-        res.status(204).send();
+        user_services.deleteUser(userId).then((q) => { res.status(204).send(q); })
+            .catch((error) => {
+                console.log(error);
+                res.status(500).send();
+            });
     }else{
         res.status(404).send();
     }
